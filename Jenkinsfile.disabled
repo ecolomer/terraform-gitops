@@ -1,0 +1,32 @@
+pipeline {
+    agent { docker { image 'terraform:0.14.5-alpine' } }
+    options {
+        disableConcurrentBuilds()
+        timestamps()
+    }
+    environment {
+        GITHUB_TOKEN = credentials('XXXXXXXX')
+    }
+    stages {
+        stage('terraform init') {
+            when {
+                not { branch 'master' }
+            }
+            steps {
+                sh """
+                terraform init && terraform plan
+                """
+            }
+        }
+        stage('terraform apply') {
+            when {
+                branch 'master'
+            }
+            steps {
+                sh """
+                terraform apply --auto-approve
+                """
+            }
+        }
+    }
+}
