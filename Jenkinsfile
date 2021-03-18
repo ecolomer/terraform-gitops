@@ -14,6 +14,9 @@ pipeline {
             when {
                 not { branch 'master' }
             }
+            environment {
+                AWS_PROFILE="develop"
+            }
             steps {
                 sh """
                 for dir in \$(git diff-tree --diff-filter=d --no-commit-id --name-only -r ${GIT_COMMIT} | sed -ne '/\\.tf\$/p' | sed -e 's|\\(.*\\)/[^/]*|\\1|' | uniq); do
