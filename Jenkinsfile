@@ -1,11 +1,13 @@
 pipeline {
-    agent { docker { image 'terraform:0.14.5-alpine' } }
+    agent {
+        docker {
+            image 'builder-base:alpine'
+            args '-v $HOME/.ssh:/root/.ssh'
+        }
+    }
     options {
         disableConcurrentBuilds()
         timestamps()
-    }
-    environment {
-        GITHUB_TOKEN = credentials('XXXXXXXX')
     }
     stages {
         stage('terraform init') {
@@ -14,7 +16,11 @@ pipeline {
             }
             steps {
                 sh """
-                terraform init && terraform plan
+                for dir in $(git diff-tree --diff-filter=d --no-commit-id --name-only -r $GIT_COMMIT | sed -ne '/\.tf$/p' | sed -e 's|\(.*\)/[^/]*|\1|' | uniq); do
+                    pushd dir
+                    terraform init
+                    popd
+                done
                 """
             }
         }
@@ -24,7 +30,7 @@ pipeline {
             }
             steps {
                 sh """
-                terraform apply --auto-approve
+                terraform version
                 """
             }
         }
