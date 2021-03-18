@@ -3,10 +3,10 @@ provider "aws" {
 }
 terraform {
   backend "s3" {
-    bucket = "terraform-states"
+    bucket = "terraform-states-abaland"
     key    = "gitops.tfstate"
     region = "eu-west-1"
-    dynamodb_table = "terraform-state-lock"
+    dynamodb_table = "terraform_gitops"
   }
   required_providers {
     aws = {
