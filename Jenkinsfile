@@ -2,7 +2,7 @@ pipeline {
     agent {
         docker {
             image 'builder-ops:alpine'
-            args '-v /Users/Eleatzar/.ssh:/root/.ssh'
+            args '-v /Users/Eleatzar/.aws:/root/.aws'
         }
     }
     options {
@@ -19,10 +19,11 @@ pipeline {
             }
             steps {
                 sh """
+                ROOT_DIR=\$PWD
                 for dir in \$(git diff-tree --diff-filter=d --no-commit-id --name-only -r ${GIT_COMMIT} | sed -ne '/\\.tf\$/p' | sed -e 's|\\(.*\\)/[^/]*|\\1|' | uniq); do
-                    pushd dir
+                    cd \$dir
                     terraform init
-                    popd
+                    cd \$ROOT_DIR
                 done
                 """
             }
