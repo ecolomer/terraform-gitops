@@ -1,9 +1,6 @@
 pipeline {
     agent {
-        docker {
-            image 'builder-ops:alpine'
-            args '-v /Users/Eleatzar/.aws:/root/.aws'
-        }
+        label 'ops-alpine'
     }
     options {
         disableConcurrentBuilds()
@@ -18,14 +15,16 @@ pipeline {
                 AWS_PROFILE="develop"
             }
             steps {
-                sh """
-                ROOT_DIR=\$PWD
-                for dir in \$(git diff-tree --diff-filter=d --no-commit-id --name-only -r ${GIT_COMMIT} | sed -ne '/\\.tf\$/p' | sed -e 's|\\(.*\\)/[^/]*|\\1|' | uniq); do
-                    cd \$dir
-                    terraform init
-                    cd \$ROOT_DIR
-                done
-                """
+                container('ops-alpine') {
+                    sh """
+                    ROOT_DIR=\$PWD
+                    for dir in \$(git diff-tree --diff-filter=d --no-commit-id --name-only -r ${GIT_COMMIT} | sed -ne '/\\.tf\$/p' | sed -e 's|\\(.*\\)/[^/]*|\\1|' | uniq); do
+                        cd \$dir
+                        terraform init
+                        cd \$ROOT_DIR
+                    done
+                    """
+                }
             }
         }
         stage('terraform apply') {
@@ -33,9 +32,11 @@ pipeline {
                 branch 'master'
             }
             steps {
-                sh """
-                terraform version
-                """
+                container('ops-alpine') {
+                    sh """
+                    terraform version
+                    """
+                }
             }
         }
     }
