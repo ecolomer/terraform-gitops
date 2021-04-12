@@ -4,7 +4,7 @@ provider "aws" {
 terraform {
   backend "s3" {
     bucket = "terraform-states-abaland"
-    key    = "gitops.tfstate"
+    key    = "gitops-iam.tfstate"
     region = "eu-west-1"
     dynamodb_table = "terraform_gitops"
   }
