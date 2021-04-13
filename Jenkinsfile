@@ -49,7 +49,7 @@ pipeline {
                                 echo "\n[1mUploading plan for \$dir to S3...[0m[0m"
                                 tarball=\${planout}.tar.gz
                                 tar zcf /tmp/\$tarball .
-                                aws s3 cp /tmp/\$tarball s3://\$PLAN_BUCKET/\$tarball
+                                aws s3 cp /tmp/\$tarball s3://\$PLAN_BUCKET/\$tarball --no-progress
 
                                 cd \$ROOT_DIR
                             done
@@ -97,9 +97,9 @@ pipeline {
                                 # Apply plan if available on S3
                                 plan=\$(echo \$dir | sed -e 's|/|-|')
                                 tarball=\${plan}.tar.gz
-                                if aws s3api head-object --bucket \$PLAN_BUCKET --key \$tarball; then
+                                if aws s3api head-object --bucket \$PLAN_BUCKET --key \$tarball > /dev/null; then
                                     echo "\n[1mDownloading plan for \$dir from S3...[0m[0m";
-                                    aws s3 cp s3://\$PLAN_BUCKET/\$tarball .;
+                                    aws s3 cp s3://\$PLAN_BUCKET/\$tarball . --no-progress;
                                     tar zxf \$tarball;
                                     echo "\n[1mApplying plan for \$dir ...[0m[0m";
                                     terraform apply -input=false \$plan;
