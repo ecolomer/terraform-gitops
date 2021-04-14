@@ -13,9 +13,9 @@ pipeline {
                 not { branch 'master' }
                 expression {
                     // Skip if no Terraform files modified
-                    def filesNotModified = sh(returnStatus: true, script: "git diff-tree --diff-filter=d --no-commit-id --name-only -r ${GIT_COMMIT} | grep -e '\\.tf\$'")
-                    if (filesNotModified) { println "INFO: No Terraform files modified. Skipping stage." }
-                    return !filesNotModified
+                    def retVal = sh(returnStatus: true, script: "git diff-tree --no-commit-id --name-only -r ${GIT_COMMIT} | grep -e '\\.tf\$'")
+                    if (retVal) { println "INFO: No Terraform files modified. Skipping stage." }
+                    return !retVal
                 }
             }
             steps {
@@ -25,7 +25,7 @@ pipeline {
                             ROOT_DIR=\$PWD
 
                             # Process all modified Terraform configurations
-                            for dir in \$(git diff-tree --diff-filter=d --no-commit-id --name-only -r ${GIT_COMMIT} | sed -ne '/\\.tf\$/p' | sed -e 's|\\(.*\\)/[^/]*|\\1|' | uniq); do
+                            for dir in \$(git diff-tree --no-commit-id --name-only -r ${GIT_COMMIT} | sed -ne '/\\.tf\$/p' | sed -e 's|\\(.*\\)/[^/]*|\\1|' | uniq); do
                                 cd \$dir
 
                                 if echo "\$dir" | grep -q "development/"; then
@@ -83,9 +83,9 @@ pipeline {
                 branch 'master'
                 expression {
                     // Skip if no Terraform files modified
-                    def filesNotModified = sh(returnStatus: true, script: "git diff-tree --diff-filter=d --no-commit-id --name-only -r -m ${GIT_COMMIT} | grep -e '\\.tf\$'")
-                    if (filesNotModified) { println "INFO: No Terraform files modified. Skipping stage." }
-                    return !filesNotModified
+                    def retVal = sh(returnStatus: true, script: "git diff-tree --no-commit-id --name-only -r ${GIT_COMMIT} | grep -e '\\.tf\$'")
+                    if (retVal) { println "INFO: No Terraform files modified. Skipping stage." }
+                    return !retVal
                 }
             }
             steps {
@@ -95,7 +95,7 @@ pipeline {
                             ROOT_DIR=\$PWD
 
                             # Process all modified Terraform configurations
-                            for dir in \$(git diff-tree --diff-filter=d --no-commit-id --name-only -r -m ${GIT_COMMIT} | sed -ne '/\\.tf\$/p' | sed -e 's|\\(.*\\)/[^/]*|\\1|' | uniq); do
+                            for dir in \$(git diff-tree --no-commit-id --name-only -r -m ${GIT_COMMIT} | sed -ne '/\\.tf\$/p' | sed -e 's|\\(.*\\)/[^/]*|\\1|' | uniq); do
                                 cd \$dir
 
                                 if echo "\$dir" | grep -q "development/"; then
