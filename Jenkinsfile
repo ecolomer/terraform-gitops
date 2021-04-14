@@ -14,7 +14,7 @@ pipeline {
                 expression {
                     // Skip if no Terraform files modified
                     def retVal = sh(returnStatus: true, script: "git diff-tree --no-commit-id --name-only -r ${GIT_COMMIT} | grep -e '\\.tf\$'")
-                    if (retVal) { println "INFO: No Terraform files modified. Skipping stage." }
+                    if (retVal) { println "Info: No Terraform files modified. Skipping stage." }
                     return !retVal
                 }
             }
@@ -42,13 +42,19 @@ pipeline {
                                     break
                                 fi
 
-                                echo "\n[1mRunning tflint on \$dir ...[0m[31m"
+                                echo "\n[1mRunning tflint on \$dir ...[0m"
                                 if ! tflint --config=/root/.tflint/tflint.hcl; then
-                                    echo "Error: issues found in current configuration. Review error messages.[0m"
+                                    echo "[31mError: issues found in current configuration. Review error messages.[0m"
                                     break
                                 fi
 
-                                echo "[0m\n[1mGenerating plan for \$dir ...[0m"
+                                echo "\n[1mRunning tfsec on \$dir ...[0m"
+                                if ! tfsec --concise-output --no-color; then
+                                    echo "[31mError: issues found in current configuration. Review error messages.[0m"
+                                    break
+                                fi
+
+                                echo "\n[1mGenerating plan for \$dir ...[0m"
                                 conf=\$(echo \$dir | sed -e 's|/|-|')
                                 if ! terraform plan -input=false -out=\${conf}.tfplan 2>&1; then
                                     echo "[31mError: cannot plan configuration! Review error messages.[0m"
@@ -84,7 +90,7 @@ pipeline {
                 expression {
                     // Skip if no Terraform files modified
                     def retVal = sh(returnStatus: true, script: "git diff-tree --no-commit-id --name-only -r -m ${GIT_COMMIT} | grep -e '\\.tf\$'")
-                    if (retVal) { println "INFO: No Terraform files modified. Skipping stage." }
+                    if (retVal) { println "Info: No Terraform files modified. Skipping stage." }
                     return !retVal
                 }
             }
@@ -123,7 +129,7 @@ pipeline {
                                         break
                                     fi
                                 else
-                                    echo "\n[1mError: plan for \$dir not available![0m"
+                                    echo "\n[31mError: plan for \$dir not available![0m"
                                 fi
 
                                 echo "\n[1mRemoving plan for \$dir from S3...[0m";
