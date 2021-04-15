@@ -48,6 +48,12 @@ pipeline {
                                     break
                                 fi
 
+                                echo "\n[1mRunning tfsec on \$dir ...[0m[31m"
+                                if ! tfsec; then
+                                    echo "Error: issues found in current configuration. Review error messages.[0m"
+                                    break
+                                fi
+
                                 echo "[0m\n[1mGenerating plan for \$dir ...[0m"
                                 conf=\$(echo \$dir | sed -e 's|/|-|')
                                 if ! terraform plan -input=false -out=\${conf}.tfplan 2>&1; then
