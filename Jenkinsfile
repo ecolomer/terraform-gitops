@@ -14,7 +14,7 @@ pipeline {
                 expression {
                     // Skip if no Terraform files modified
                     def retVal = sh(returnStatus: true, script: "git diff-tree --no-commit-id --name-only -r ${GIT_COMMIT} | grep -e '\\.tf\$'")
-                    if (retVal) { println "Info: No Terraform files modified. Skipping stage!" }
+                    if (retVal) { println "Info: No Terraform files modified. Skipping stage!!" }
                     return !retVal
                 }
             }
