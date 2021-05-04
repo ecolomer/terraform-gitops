@@ -36,6 +36,10 @@ pipeline {
                                     export PLAN_BUCKET=terraform-plans-abaenglish;
                                 fi
 
+                                # Remove AWS provider from terraform.lock.hcl
+                                # Container images have a pre-installed AWS provider
+                                [ -f .terraform.lock.hcl ] && sed -i "/aws/,/}/d" .terraform.lock.hcl
+
                                 echo "\n[1mProcessing \$dir ...[0m"
                                 if ! terraform init -input=false 2>&1; then
                                     echo "[31mError: cannot initialize! Review error messages.[0m"
@@ -73,7 +77,7 @@ pipeline {
                         """)
 
                         // Prepare pull request text
-                        def colored = sh (returnStdout:true, script:"echo \"$result\" | sed -e '/unchanged attributes hidden/d' | term2md")
+                        def colored = sh (returnStdout:true, script:"echo \"$result\" | sed -e '/unchanged [A-Za-z]\\+ hidden/d' | term2md")
 
                         // Add results to pull request comment
                         if (env.CHANGE_ID) { pullRequest.comment(colored) }
