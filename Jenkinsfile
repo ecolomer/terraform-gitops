@@ -80,7 +80,7 @@ pipeline {
                         println "\n\u001B[1mTerraform plan stage output\u001B[0m\n"
 
                         // Prepare pull request text
-                        def colored = sh (returnStdout:true, script:"echo \"$result\" | sed -e '/unchanged [A-Za-z]\\+ hidden/d' | term2md")
+                        def colored = sh (returnStdout:true, script:"echo \"$result\" | sed -e '/unchanged [A-Za-z]\\+ hidden/s/#//' | term2md")
 
                         // Add results to pull request comment
                         if (env.CHANGE_ID) { pullRequest.comment(colored) }
