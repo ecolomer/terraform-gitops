@@ -146,6 +146,9 @@ pipeline {
                             done
                         """)
 
+                        // Display script output
+                        println result
+
                         // If issues were found, fail build
                         if (result.contains("Error:")) { currentBuild.result = "FAILURE"; }
                     }
