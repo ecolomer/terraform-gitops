@@ -77,7 +77,7 @@ pipeline {
                         """)
 
                         // Display script output
-                        println "Terraform plan stage output:\n$result"
+                        println "\n\u001B[1mTerraform plan stage output\u001B[0m\n"
 
                         // Prepare pull request text
                         def colored = sh (returnStdout:true, script:"echo \"$result\" | sed -e '/unchanged [A-Za-z]\\+ hidden/d' | term2md")
@@ -151,7 +151,7 @@ pipeline {
                         """)
 
                         // Display script output
-                        println "Terraform plan stage output:\n$result"
+                        println "\n\u001B[1mTerraform apply stage output\u001B[0m\n$result"
 
                         // If issues were found, fail build
                         if (result.contains("Error:")) { currentBuild.result = "FAILURE"; }
